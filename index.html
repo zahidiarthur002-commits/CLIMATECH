@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLIMATECH - Station météo connectée | Dashboard</title>
+    <style>
+        /* Styles Globaux */
+        :root {
+            --bg-color: #000;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-temp: #f59e0b;
+            --accent-hum: #3b82f6;
+            --accent-pres: #10b981;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            /*---configuration avec image du pc ---*/
+            background-image: linear-gradient(rgba(15,23,42,0.85)),
+            url('Station météo.jpeg');
+            background-size: cover;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* Grille des Tableaux de Bord */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 90%;
+            max-width: 1200px;
+            padding: 1rem;
+        }
+
+        /* Cartes de données */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .value {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        /* Couleurs thématiques par capteur */
+        .temp .value { color: var(--accent-temp); }
+        .humidity .value { color: var(--accent-hum); }
+        .pressure .value { color: var(--accent-pres); }
+
+        .unit {
+            font-size: 1.5rem;
+            font-weight: normal;
+            color: var(--text-muted);
+        }
+
+        /* Statut de connexion */
+        .status-container {
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+             <h1>CLIMATECH -
+            l'intélligence au service du climat
+        </h1>
+        <p>Système de suivi environnemental en temps réel</p>
+        <div class="status-container">
+            <span class="dot"></span> ESP32 ou Arduino Connecté via Wi-Fi
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <div class="card temp">
+            <h3>Température</h3>
+            <div class="value"><span id="temp-val">24.5</span><span class="unit">°C</span></div>
+            <p style="color: var(--text-muted); margin: 0;">Capteur BME280</p>
+        </div>
+
+        <div class="card humidity">
+            <h3>Humidité</h3>
+            <div class="value"><span id="hum-val">62</span><span class="unit">%</span></div>
+            <p style="color: var(--text-muted); margin: 0;">Capteur SHT35</p>
+        </div>
+
+        <div class="card pressure">
+            <h3>Pression</h3>
+            <div class="value"><span id="pres-val">1013</span><span class="unit"> hPa</span></div>
+            <p style="color: var(--text-muted); margin: 0;">Atmosphérique</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 - Station Météo Connectée | Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        // Simulation de mise à jour des données en temps réel (Toutes les 3 secondes)
+        function simulerDonneesMeteo() {
+            // Génère des variations réalistes
+            const nouvelleTemp = (22 + Math.random() * 5).toFixed(1);
+            const nouvelleHum = Math.floor(55 + Math.random() * 15);
+            const nouvellePres = Math.floor(1008 + Math.random() * 10);
+
+            // Injection des valeurs dans le HTML
+            document.getElementById('temp-val').innerText = nouvelleTemp;
+            document.getElementById('hum-val').innerText = nouvelleHum;
+            document.getElementById('pres-val').innerText = nouvellePres;
+        }
+
+        // Appeler la fonction toutes les 3000ms
+        setInterval(simulerDonneesMeteo, 3000);
+    </script>
+       
+</body>
+</html>
