@@ -181,14 +181,14 @@
 
          <div class="card windspeed">
             <h3>Vitesse du vent</h3>
-            <div class="value"><span id="pres-val">1013</span><span class="unit"> hPa</span></div>
-            <p style="color: var(--text-muted); margin: 0;">Atmosphérique</p>
+            <div class="value"><span id="vitesse-val">0</span><span class="unit"> </span></div>
+            <p style="color: var(--text-muted); margin: 0;">Girouette</p>
         </div>
 
          <div class="card winddirection">
-            <h3>Pression</h3>
-            <div class="value"><span id="pres-val">1013</span><span class="unit"> hPa</span></div>
-            <p style="color: var(--text-muted); margin: 0;">Atmosphérique</p>
+            <h3>Direction du vent</h3>
+            <div class="value"><span id="direction-val">0</span><span class="unit"> </span></div>
+            <p style="color: var(--text-muted); margin: 0;">Anemometre</p>
         </div>
     </main>
 
@@ -198,20 +198,24 @@
 
     <script>
         // Simulation de mise à jour des données en temps réel (Toutes les 3 secondes)
-        function simulerDonneesMeteo() {
+        function DonneesMeteo() {
             // Génère des variations réalistes
-            const nouvelleTemp = (22 + Math.random() * 5).toFixed(1);
-            const nouvelleHum = Math.floor(55 + Math.random() * 15);
-            const nouvellePres = Math.floor(1008 + Math.random() * 10);
+            const Temp = (22 + Math.random() * 5).toFixed(1);
+            const Hum = Math.floor(55 + Math.random() * 15);
+            const Pres = Math.floor(1008 + Math.random() * 10);
+            const Speed = Math.floor(55 + Math.random() * 15);
+            const Direction = Math.floor(1008 + Math.random() * 10);
 
             // Injection des valeurs dans le HTML
-            document.getElementById('temp-val').innerText = nouvelleTemp;
-            document.getElementById('hum-val').innerText = nouvelleHum;
-            document.getElementById('pres-val').innerText = nouvellePres;
+            document.getElementById('t').innerText = Temp;
+            document.getElementById('h').innerText = Hum;
+            document.getElementById('p').innerText = Pres;
+            document.getElementById('h').innerText = Speed;
+            document.getElementById('p').innerText = Direction;
         }
 
         // Appeler la fonction toutes les 3000ms
-        setInterval(simulerDonneesMeteo, 3000);
+        setInterval(DonneesMeteo, 3000);
     </script>
        
 </body>
