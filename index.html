@@ -34,6 +34,9 @@
         .temp .value { color: var(--accent-temp); }
         .humidity .value { color: var(--accent-hum); }
         .pressure .value { color: var(--accent-pres); }
+         .windspeed.value { color: var(--accent-vitessevent); }
+        .winddirection.value { color: var(--accent-directionvent); }
+    
         .unit { font-size: 1.5rem; font-weight: normal; color: var(--text-muted); }
         .status-container { margin-top: 2rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
         .dot { width: 10px; height: 10px; background-color: #10b981; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
@@ -70,6 +73,18 @@
             <div class="value"><span id="pres-val">----</span><span class="unit"> hPa</span></div>
             <p style="color: var(--text-muted); margin: 0;">Capteur BME280</p>
         </div>
+        
+         <div class="card windspeed">
+            <h3>Vitesse du vent</h3>
+            <div class="value"><span id="vitesse-val">0</span><span class="unit"> </span></div>
+            <p style="color: var(--text-muted); margin: 0;">Girouette</p>
+        </div>
+
+         <div class="card winddirection">
+            <h3>Direction du vent</h3>
+            <div class="value"><span id="direction-val">0</span><span class="unit"> </span></div>
+            <p style="color: var(--text-muted); margin: 0;">Anémomètre</p>
+        </div>
     </main>
 
     <footer>
@@ -85,6 +100,8 @@
                     document.getElementById('temp-val').innerText = data.temperature;
                     document.getElementById('hum-val').innerText = data.humidite;
                     document.getElementById('pres-val').innerText = data.pression;
+                    document.getElementById('vitesse-val').innerText = Speed;
+                    document.getElementById('direction-val').innerText = Direction;
                 })
                 .catch(err => console.error("Erreur de récupération:", err));
         }
