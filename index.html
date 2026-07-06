@@ -101,7 +101,7 @@
             margin: 1.5rem 0 0.5rem 0;
         }
 
-        /* Couleurs thématiques par capteur */
+        /* Couleur par capteur */
         .temp .value { color: var(--accent-temp); }
         .humidity .value { color: var(--accent-hum); }
         .pressure .value { color: var(--accent-pres); }
@@ -202,14 +202,14 @@
             
             const Temp = data.t;
             const Hum = data.h;
-            const Pres = data.p;
+            const Press = data.p;
             const Speed = data.vent_vitesse;
             const Direction = data.vent_direction;
 
             // Injection des valeurs dans le HTML
             document.getElementById('temperature-val').innerText = Temp;
             document.getElementById('humidite-val').innerText = Hum;
-            document.getElementById('pression-val').innerText = Pres;
+            document.getElementById('pression-val').innerText = Press;
             document.getElementById('vitesse-val').innerText = Speed;
             document.getElementById('direction-val').innerText = Direction;
         }
