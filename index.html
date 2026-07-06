@@ -170,7 +170,7 @@
         <div class="card humidity">
             <h3>Humidité</h3>
             <div class="value"><span id="hum-val">62</span><span class="unit">%</span></div>
-            <p style="color: var(--text-muted); margin: 0;">Capteur DHT11/p>
+            <p style="color: var(--text-muted); margin: 0;">Capteur DHT11</p>
         </div>
 
         <div class="card pressure">
@@ -203,9 +203,9 @@
             const Temp = data.t;
             const Hum = data.h;
             const Pres = data.p;
-            const Speed = Math.floor(55 + Math.random() * 15;
-            const Direction = Math.floor(1008 + Math.random() * 10);
-
+            const Speed = data.vent_vitesse;
+            const Direction = data.vent_direction
+         
             // Injection des valeurs dans le HTML
             document.getElementById('temperature').innerText = Temp;
             document.getElementById('humidité').innerText = Hum;
@@ -214,7 +214,6 @@
             document.getElementById('direction').innerText = Direction;
         }
 
-        // Appeler la fonction toutes les 3000ms
         setInterval(DonneesMeteo, 3000);
     </script>
        
