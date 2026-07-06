@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLIMATECH - Station météo connectée | Dashboard</title>
     <style>
-        /* Styles Globaux */
+        
         :root {
             --bg-color: #000;
             --card-bg: #1e293b;
@@ -29,16 +29,16 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            /*---configuration avec image du pc ---*/
+            
             background-image: linear-gradient(rgba(15,23,42,0.85)),
             url('./Station météo.jpeg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            /* --- CODE SPÉCIAL POUR LES TÉLÉPHONES --- */
+            
            @media (max-width: 768px) {
     body {
-        /* On désactive le mode 'fixed' qui bug sur mobile, l'image va défiler normalement */
+        
         background-attachment: scroll; 
     }
         }
@@ -61,7 +61,7 @@
             margin-top: 0.5rem;
         }
 
-        /* Grille des Tableaux de Bord */
+        
         .dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -71,7 +71,7 @@
             padding: 1rem;
         }
 
-        /* Cartes de données */
+        
         .card {
             background-color: var(--card-bg);
             border-radius: 16px;
@@ -115,7 +115,7 @@
             color: var(--text-muted);
         }
 
-        /* Statut de connexion */
+        
         .status-container {
             margin-top: 2rem;
             display: flex;
@@ -156,26 +156,26 @@
         </h1>
         <p>Système de suivi environnemental en temps réel</p>
         <div class="status-container">
-            <span class="dot"></span>  Arduino Uno Connecté via Wi-Fi
+            <span class="dot"></span>  ESP32 via Wi-Fi
         </div>
     </header>
 
     <main class="dashboard">
         <div class="card temp">
             <h3>Température</h3>
-            <div class="value"><span id="temp-val">24.5</span><span class="unit">°C</span></div>
+            <div class="value"><span id="temperature-val">24.5</span><span class="unit">°C</span></div>
             <p style="color: var(--text-muted); margin: 0;">Capteur DHT11</p>
         </div>
 
         <div class="card humidity">
             <h3>Humidité</h3>
-            <div class="value"><span id="hum-val">62</span><span class="unit">%</span></div>
-            <p style="color: var(--text-muted); margin: 0;">Capteur DHT11/p>
+            <div class="value"><span id="humidite-val">65</span><span class="unit">%</span></div>
+            <p style="color: var(--text-muted); margin: 0;">Capteur DHT11</p>
         </div>
 
         <div class="card pressure">
             <h3>Pression</h3>
-            <div class="value"><span id="pres-val">1013</span><span class="unit"> hPa</span></div>
+            <div class="value"><span id="pression-val">1013</span><span class="unit"> hPa</span></div>
             <p style="color: var(--text-muted); margin: 0;">Atmosphérique</p>
         </div>
 
@@ -197,24 +197,24 @@
     </footer>
 
     <script>
-        // Simulation de mise à jour des données en temps réel (Toutes les 3 secondes)
+    
         function DonneesMeteo() {
-            // Génère des variations réalistes
+            
             const Temp = data.t;
             const Hum = data.h;
             const Pres = data.p;
-            const Speed = Math.floor(55 + Math.random() * 15;
-            const Direction = Math.floor(1008 + Math.random() * 10);
+            const Speed = data.vent_vitesse;
+            const Direction = data.vent_direction;
 
             // Injection des valeurs dans le HTML
-            document.getElementById('temperature').innerText = Temp;
-            document.getElementById('humidité').innerText = Hum;
-            document.getElementById('pression').innerText = Pres;
-            document.getElementById('vitessevent').innerText = Speed;
-            document.getElementById('direction').innerText = Direction;
+            document.getElementById('temperature-val').innerText = Temp;
+            document.getElementById('humidite-val').innerText = Hum;
+            document.getElementById('pression-val').innerText = Pres;
+            document.getElementById('vitesse-val').innerText = Speed;
+            document.getElementById('direction-val').innerText = Direction;
         }
 
-        // Appeler la fonction toutes les 3000ms
+
         setInterval(DonneesMeteo, 3000);
     </script>
        
