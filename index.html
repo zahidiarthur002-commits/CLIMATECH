@@ -1,13 +1,34 @@
+#include <WiFi.h>
+#include <WebServer.h>
+#include <Wire.h>
+#include <DHT.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
+
+// --- Configuration du Wi-Fi ---
+const char* ssid = "ClimaTech_WiFi";
+const char* password = "123456789";  
+
+WebServer server(80);
+
+// --- Configuration des Capteurs ---
+#define DHTPIN 23  // Broche GPIO4 pour le DHT22 sur l'ESP32
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+
+Adafruit_BME280 bme; // I2C par défaut (SDA = GPIO21, SCL = GPIO22 sur ESP32)
+
+// --- Page HTML (Votre Code personnalisé et adapté) ---
+const char HTML_PAGE[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>CLIMATECH - Station météo connectée | Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLIMATECH-station météo connectée | Dashboard</title>
     <style>
-        
         :root {
-            --bg-color: #000;
+            --bg-color: #0f172a;
             --card-bg: #1e293b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
@@ -16,207 +37,134 @@
             --accent-pres: #10b981;
             --accent-vitessevent: #3b82f6;
             --accent-diretionvent: #40e0d0;
-         
         }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            
-            background-image: linear-gradient(rgba(15,23,42,0.85)),
-            url('./Station météo.jpeg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            
-           @media (max-width: 768px) {
-    body {
-        
-        background-attachment: scroll; 
-    }
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
-
-        header {
-            text-align: center;
-            padding: 2rem 1rem;
-            width: 100%;
-            max-width: 1200px;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            letter-spacing: 1px;
-        }
-
-        header p {
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-        }
-
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            width: 90%;
-            max-width: 1200px;
-            padding: 1rem;
-        }
-
-        
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 2rem;
-            text-align: center;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .value {
-            font-size: 3.5rem;
-            font-weight: bold;
-            margin: 1.5rem 0 0.5rem 0;
-        }
-
-        /* Couleur par capteur */
+        header { text-align: center; padding: 2rem 1rem; width: 100%; max-width: 1200px; }
+        header h1 { margin: 0; font-size: 2.2rem; letter-spacing: 1px; }
+        header p { color: var(--text-muted); margin-top: 0.5rem; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; width: 90%; max-width: 1200px; padding: 1rem; }
+        .card { background-color: var(--card-bg); border-radius: 16px; padding: 2rem; text-align: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); transition: transform 0.3s ease; }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { margin: 0; font-size: 1.2rem; color: var(--text-muted); text-transform: uppercase; }
+        .value { font-size: 3.5rem; font-weight: bold; margin: 1.5rem 0 0.5rem 0; }
         .temp .value { color: var(--accent-temp); }
         .humidity .value { color: var(--accent-hum); }
         .pressure .value { color: var(--accent-pres); }
-        .windspeed.value { color: var(--accent-vitessevent); }
-        .winddirection.value { color: var(--accent-directionvent); }
-        
-
-        .unit {
-            font-size: 1.5rem;
-            font-weight: normal;
-            color: var(--text-muted);
-        }
-
-        
-        .status-container {
-            margin-top: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            background-color: #10b981;
-            border-radius: 50%;
-            display: inline-block;
-            animation: pulse 2s infinite;
-        }
-
+        .unit { font-size: 1.5rem; font-weight: normal; color: var(--text-muted); }
+        .status-container { margin-top: 2rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
+        .dot { width: 10px; height: 10px; background-color: #10b981; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
         @keyframes pulse {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        footer {
-            margin-top: auto;
-            padding: 2rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
+          }
+        footer { margin-top: auto; padding: 2rem; color: var(--text-muted); font-size: 0.85rem; }
     </style>
 </head>
 <body>
-
     <header>
-             <h1>CLIMATECH -
-            l'intelligence au service du climat
-        </h1>
+        <h1>CLIMATECH - L'intelligence au service du climat</h1>
         <p>Système de suivi environnemental en temps réel</p>
         <div class="status-container">
-            <span class="dot"></span>  ESP32 via Wi-Fi
+            <span class="dot"></span> ESP32 Connecté en Temps Réel
         </div>
     </header>
 
     <main class="dashboard">
         <div class="card temp">
             <h3>Température</h3>
-            <div class="value"><span id="temperature-val">24.5</span><span class="unit">°C</span></div>
-            <p style="color: var(--text-muted); margin: 0;">Capteur DHT11</p>
+            <div class="value"><span id="temp-val">--.-</span><span class="unit">°C</span></div>
+            <p style="color: var(--text-muted); margin: 0;">Capteur DHT22</p>
         </div>
-
         <div class="card humidity">
             <h3>Humidité</h3>
-            <div class="value"><span id="humidite-val">65</span><span class="unit">%</span></div>
-            <p style="color: var(--text-muted); margin: 0;">Capteur DHT11</p>
+            <div class="value"><span id="hum-val">--</span><span class="unit">%</span></div>
+            <p style="color: var(--text-muted); margin: 0;">Capteur DHT22</p>
         </div>
-
         <div class="card pressure">
             <h3>Pression</h3>
-            <div class="value"><span id="pression-val">1013</span><span class="unit"> hPa</span></div>
-            <p style="color: var(--text-muted); margin: 0;">Atmosphérique</p>
-        </div>
-
-         <div class="card windspeed">
-            <h3>Vitesse du vent</h3>
-            <div class="value"><span id="vitesse-val">0</span><span class="unit"> </span></div>
-            <p style="color: var(--text-muted); margin: 0;">Girouette</p>
-        </div>
-
-         <div class="card winddirection">
-            <h3>Direction du vent</h3>
-            <div class="value"><span id="direction-val">0</span><span class="unit"> </span></div>
-            <p style="color: var(--text-muted); margin: 0;">Anémomètre</p>
+            <div class="value"><span id="pres-val">----</span><span class="unit"> hPa</span></div>
+            <p style="color: var(--text-muted); margin: 0;">Capteur BME280</p>
         </div>
     </main>
 
     <footer>
-        <p>&copy; 2026 - Station Météo Connectée | Tous droits réservés.</p>
+        <p>&copy; 2026 - ClimaTech | Tous droits réservés.</p>
     </footer>
 
     <script>
-    
-        function DonneesMeteo() {
-            
-            const Temp = data.t;
-            const Hum = data.h;
-            const Press = data.p;
-            const Speed = data.vent_vitesse;
-            const Direction = data.vent_direction;
-
-            // Injection des valeurs dans le HTML
-            document.getElementById('temperature-val').innerText = Temp;
-            document.getElementById('humidite-val').innerText = Hum;
-            document.getElementById('pression-val').innerText = Press;
-            document.getElementById('vitesse-val').innerText = Speed;
-            document.getElementById('direction-val').innerText = Direction;
+        // Fonction qui demande les vraies données à l'ESP32 toutes les 2 secondes
+        function actualiserDonnees() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('temp-val').innerText = data.temperature;
+                    document.getElementById('hum-val').innerText = data.humidite;
+                    document.getElementById('pres-val').innerText = data.pression;
+                })
+                .catch(err => console.error("Erreur de récupération:", err));
         }
-
-
-        setInterval(DonneesMeteo, 3000);
+        setInterval(actualiserDonnees, 2000);
+        window.onload = actualiserDonnees;
     </script>
-       
 </body>
 </html>
+)rawliteral";
+
+// --- Envoi de la page HTML ---
+void handleRoot() {
+  server.send(200, "text/html", HTML_PAGE);
+}
+
+// --- Envoi des données réelles des capteurs au format JSON ---
+void handleData() {
+  float t = dht.readTemperature();
+  float h = dht.readHumidity();
+  float p = bme.readPressure() / 100.0F;
+
+  // Remplacement par des valeurs par défaut si erreur de lecture
+  if (isnan(t)) t = 0.0;
+  if (isnan(h)) h = 0.0;
+  if (isnan(p)) p = 0.0;
+
+  String json = "{";
+  json += "\"temperature\":" + String(t, 1) + ",";
+  json += "\"humidite\":" + String((int)h) + ",";
+  json += "\"pression\":" + String((int)p);
+  json += "}";
+  
+  server.send(200, "application/json", json);
+}
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Initialisation des capteurs
+  dht.begin();
+  //if (!bme.begin(0x76)) {
+   // Serial.println("Erreur BME280 non trouvé ! Vérifiez l'adresse I2C.");
+ // }
+
+  // Configuration de l'ESP32 en mode Point d'Accès (il crée son propre Wi-Fi)
+  WiFi.softAP(ssid, password);
+  Serial.print("Réseau Wi-Fi créé : ");
+  Serial.println(ssid);
+  Serial.print("Adresse IP du Dashboard : ");
+  Serial.println(WiFi.softAPIP()); // 192.168.4.1
+
+  // Définition des routes du serveur
+  server.on("/", handleRoot);
+  server.on("/data", handleData);
+  
+  server.begin();
+}
+
+void loop() {
+  server.handleClient(); // Gère les connexions des utilisateurs
+}
